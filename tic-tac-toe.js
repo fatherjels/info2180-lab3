@@ -53,8 +53,9 @@ const announceWinner = (player) => {
 
 // Function to handle the click event on a square
 const handleSquareClick = (square, index) => {
+    // Check if the game is over or if the square is already filled
     if (gameOver || square.textContent !== "") {
-        return; // Do nothing if the game is over or square is already filled
+        return; // Do nothing if the game is over or the square is already filled
     }
 
     if (currentPlayer === PLAYER_X) {
@@ -103,19 +104,23 @@ const handleMouseOut = (square) => {
 
 // Function to reset the game
 const resetGame = () => {
+    // Select all squares in the board
     const squares = document.getElementById("board").querySelectorAll("div");
+    // Loop through each square to reset it
     squares.forEach(square => {
-        square.textContent = "";
-        square.classList.remove("X", "O", "hover");
+        square.textContent = ""; // Clear the text content of each square
+        square.classList.remove("X", "O", "hover"); // Remove any X, O, and hover classes
     });
 
-    countX = 0;
-    countY = 0;
-    countXList = [];
-    countYList = [];
-    currentPlayer = PLAYER_X;
-    gameOver = false;
+    // Reset game variables
+    countX = 0; // Reset count for player X moves
+    countY = 0; // Reset count for player O moves
+    countXList = []; // Clear player X's list of moves
+    countYList = []; // Clear player O's list of moves
+    currentPlayer = PLAYER_X; // Set current player back to X
+    gameOver = false; // Set gameOver flag to false
 
+    // Reset the status message
     const statusDiv = document.getElementById("status");
     statusDiv.textContent = "Move your mouse over a square and click to play an X or an O.";
     statusDiv.classList.remove("you-won");
@@ -124,6 +129,7 @@ const resetGame = () => {
 // Main function to initialize the game
 document.addEventListener("DOMContentLoaded", () => {
     const squares = document.getElementById("board").querySelectorAll("div");
+    // Add event listeners to each square for click, mouseover, and mouseout events
     squares.forEach((square, index) => {
         square.classList.add("square");
         square.addEventListener("click", () => handleSquareClick(square, index));
@@ -131,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
         square.addEventListener("mouseout", () => handleMouseOut(square));
     });
 
-    // Add click event listener to the "New Game" button
+    // Add click event listener to the "New Game" button to reset the game
     document.querySelector("button").addEventListener("click", resetGame);
 });
 
