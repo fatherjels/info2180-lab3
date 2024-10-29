@@ -1,52 +1,137 @@
-// Wait for the DOM to be fully loaded
-document.addEventListener("DOMContentLoaded", function () {
-    const squares = document.querySelectorAll('#board div'); // Select the squares inside the board
-    const newGameButton = document.querySelector('.btn'); // Select the New Game button by class
-    let currentPlayer = 'X'; // Keep track of the current player
-    const gameState = Array(9).fill(null); // Initialize an empty game state array
+// Constants for players
+const PLAYER_X = "X";
+const PLAYER_O = "O";
 
-    // Add click event listeners to squares
-    squares.forEach((square, index) => {
-        square.addEventListener('click', () => {
-            // Check if the square is already occupied
-            if (square.classList.contains('X') || square.classList.contains('O')) {
-                return; // Do nothing if the square is already filled
+// Variables to track the game state
+let currentPlayer = PLAYER_X;
+let countX = 0;
+let countY = 0;
+let countXList = [];
+let countYList = [];
+let gameOver = false;
+
+// Utility function to check if two arrays are equal
+const arraysEqual = (arr1, arr2) => {
+    if (arr1.length !== arr2.length) return false;
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) return false;
+    }
+    return true;
+};
+
+// Function to check if the player has won
+const checkWinner = (player, playerList) => {
+    playerList.sort((a, b) => a - b);
+    const winCombinations = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ];
+
+    for (let win of winCombinations) {
+        let matchCount = 0;
+        for (let i = 0; i < win.length; i++) {
+            if (playerList.includes(win[i])) {
+                matchCount++;
             }
+            if (matchCount === 3) {
+                announceWinner(player);
+                return true;
+            }
+        }
+    }
+    return false;
+};
 
-            // Update the square with the current player's symbol
-            square.textContent = currentPlayer; // Set the inner content to 'X' or 'O'
-            square.classList.add(currentPlayer); // Add the class for styling
-            gameState[index] = currentPlayer; // Update the game state
+// Function to announce the winner
+const announceWinner = (player) => {
+    const statusDiv = document.getElementById("status");
+    statusDiv.textContent = `Congratulations! ${player} is the Winner!`;
+    statusDiv.classList.add("you-won");
+    gameOver = true;
+};
 
-            // Switch players
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-        });
+// Function to handle the click event on a square
+const handleSquareClick = (square, index) => {
+    if (gameOver || square.textContent !== "") {
+        return; // Do nothing if the game is over or square is already filled
+    }
 
-        // Add mouseover and mouseout events for hover effect
-        square.addEventListener('mouseover', () => {
-            square.classList.add('hover'); // Add hover class on mouse over
-        });
+    if (currentPlayer === PLAYER_X) {
+        countXList.push(index);
+        square.textContent = PLAYER_X;
+        square.classList.add("X");
+        countX++;
+        if (countX >= 3) {
+            if (checkWinner(PLAYER_X, countXList)) {
+                return;
+            }
+        }
+        currentPlayer = PLAYER_O;
+    } else {
+        countYList.push(index);
+        square.textContent = PLAYER_O;
+        square.classList.add("O");
+        countY++;
+        if (countY >= 3) {
+            if (checkWinner(PLAYER_O, countYList)) {
+                return;
+            }
+        }
+        currentPlayer = PLAYER_X;
+    }
 
-        square.addEventListener('mouseout', () => {
-            square.classList.remove('hover'); // Remove hover class on mouse out
-        });
+    // Check for a draw if all squares are filled and there's no winner
+    if ((countX + countY) >= 9 && !checkWinner(PLAYER_X, countXList) && !checkWinner(PLAYER_O, countYList)) {
+        const statusDiv = document.getElementById("status");
+        statusDiv.textContent = "Game ends in a draw!";
+        gameOver = true;
+    }
+};
+
+// Function to handle the hover effect on a square
+const handleMouseOver = (square) => {
+    if (!gameOver && square.textContent === "") {
+        square.classList.add("hover");
+    }
+};
+
+// Function to remove the hover effect from a square
+const handleMouseOut = (square) => {
+    square.classList.remove("hover");
+};
+
+// Function to reset the game
+const resetGame = () => {
+    const squares = document.getElementById("board").querySelectorAll("div");
+    squares.forEach(square => {
+        square.textContent = "";
+        square.classList.remove("X", "O", "hover");
     });
 
-    // Add functionality to the New Game button
-    newGameButton.addEventListener('click', () => {
-        // Reset game state
-        gameState.fill(null); // Reset game state array
-        currentPlayer = 'X'; // Reset current player
+    countX = 0;
+    countY = 0;
+    countXList = [];
+    countYList = [];
+    currentPlayer = PLAYER_X;
+    gameOver = false;
 
-        squares.forEach(square => {
-            square.textContent = ''; // Clear the square content
-            square.classList.remove('X', 'O'); // Remove the X and O classes
-            square.classList.remove('hover'); // Remove hover class if it exists
-        });
+    const statusDiv = document.getElementById("status");
+    statusDiv.textContent = "Move your mouse over a square and click to play an X or an O.";
+    statusDiv.classList.remove("you-won");
+};
 
-        // Reset the status message
-        const status = document.getElementById('status');
-        status.textContent = "Move your mouse over a square and click to play an X or an O.";
+// Main function to initialize the game
+document.addEventListener("DOMContentLoaded", () => {
+    const squares = document.getElementById("board").querySelectorAll("div");
+    squares.forEach((square, index) => {
+        square.classList.add("square");
+        square.addEventListener("click", () => handleSquareClick(square, index));
+        square.addEventListener("mouseover", () => handleMouseOver(square));
+        square.addEventListener("mouseout", () => handleMouseOut(square));
     });
+
+    // Add click event listener to the "New Game" button
+    document.querySelector("button").addEventListener("click", resetGame);
 });
 
