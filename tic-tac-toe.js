@@ -21,6 +21,15 @@ document.addEventListener("DOMContentLoaded", function () {
             // Switch players
             currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
         });
+
+        // Add mouseover and mouseout events for hover effect
+        square.addEventListener('mouseover', () => {
+            square.classList.add('hover'); // Add hover class on mouse over
+        });
+
+        square.addEventListener('mouseout', () => {
+            square.classList.remove('hover'); // Remove hover class on mouse out
+        });
     });
 
     // Add functionality to the New Game button
@@ -32,6 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
         squares.forEach(square => {
             square.textContent = ''; // Clear the square content
             square.classList.remove('X', 'O'); // Remove the X and O classes
+            square.classList.remove('hover'); // Remove hover class if it exists
         });
 
         // Reset the status message
@@ -39,3 +49,4 @@ document.addEventListener("DOMContentLoaded", function () {
         status.textContent = "Move your mouse over a square and click to play an X or an O.";
     });
 });
+
